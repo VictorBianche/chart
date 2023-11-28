@@ -1,18 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chart</title>
-		<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
-		<script src="chart.js"></script>
-		<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Price History Chart</title>
+  <style>
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin: 20px auto;
+      font-smooth: auto;
+    }
+  </style>
 </head>
 <body>
-	<div id="report">
-		<canvas id="fipeChart" width="50" height="50"></canvas>
-		<canvas id="molicarChart" width="50" height="50"></canvas>
-	</div>
-	<script src="app.js"></script>
+  <canvas id="priceHistoryChart" width="600" height="400"></canvas>
+
+  <script>
+    const priceHistory = [
+		  { "month": "2023-10", "value": "R$\u00a012.313,00" },
+		  { "month": "2023-09", "value": "R$\u00a022.370,00" },
+      { "month": "2023-08", "value": "R$\u00a032.910,00" },
+      { "month": "2023-07", "value": "R$\u00a043.207,00" },
+      { "month": "2023-06", "value": "R$\u00a053.516,00" },
+    ];
+
+    const canvas = document.getElementById('priceHistoryChart');
+    const ctx = canvas.getContext('2d');
+
+    function getDate (month) {
+      month = parseFloat(month.replace('2023-', ''))
+      switch (month) {
+        case 1:
+          return 'Janeiro';
+        case 2:
+          return 'Fevereiro';
+        case 3:
+          return 'Março';
+        case 4:
+          return 'Abril';
+        case 5:
+          return 'Maio';
+        case 6:
+          return 'Junho';
+        case 7:
+          return 'Julho';
+        case 8:
+          return 'Agosto';
+        case 9:
+          return 'Setembro';
+        case 10:
+          return 'Outubro';
+        case 11:
+          return 'Novembro';
+        case 12:
+          return 'Dezembro';
+      }
+    }
+
+    // Function to parse the value string to a numeric value
+    function parseValue(valueString) {
+      return parseFloat(valueString.replace('R$', '').replace('.', '').replace(',', '.'));
+    }
+
+    // Function to draw the column chart
+    function drawChart(data) {
+      const values = data.map(item => parseValue(item.value));
+      const labels = data.map(item => item.month);
+
+      const minValue = 0;
+      const maxValue = Math.max(...values);
+
+      const chartWidth = canvas.width - 80;
+      const chartHeight = canvas.height - 60;
+      const valueRange = maxValue - minValue;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw horizontal grid lines
+      for (let i = 0; i <= 5; i++) {
+        const y = chartHeight - (i / 5) * chartHeight + 20;
+        ctx.beginPath();
+        ctx.moveTo(80, y);
+        ctx.lineTo(80 + chartWidth, y);
+        ctx.strokeStyle = '#ddd';
+        ctx.stroke();
+
+        // Draw Y-axis labels
+        const labelValue = minValue + (i / 5) * valueRange;
+        const newValue = Math.round(labelValue/1000)*1000;
+        ctx.fillStyle = '';
+        ctx.font = '10px Arial';
+        ctx.fillText(newValue, 60 - 50, y + 4);
+      }
+
+      // Draw vertical grid lines
+      for (let i = 0; i < labels.length; i++) {
+        const x = 40 + (i / (labels.length - 1)) * chartWidth;
+        ctx.beginPath();
+        ctx.moveTo(x, 20);
+        ctx.lineTo(x, chartHeight + 20);
+        ctx.strokeStyle = '#ddd';
+        ctx.stroke();
+      }
+
+      // Draw column chart
+      const columnWidth = chartWidth / labels.length;
+
+      for (let i = 0; i < values.length; i++) {
+        const x = 80 + i * columnWidth;
+        const y = 20 + chartHeight - (values[i] / valueRange) * chartHeight;
+        const height = (values[i] / valueRange) * chartHeight;
+
+        ctx.fillStyle = '#FF4F4F';
+        ctx.fillRect(x, y, columnWidth - 50, height);
+      }
+
+      // Draw labels
+      ctx.fillStyle = '#333';
+      ctx.font = '12px Arial';
+      for (let i = 0; i < labels.length; i++) {
+        const x = 40 + i * columnWidth + columnWidth / 2;
+        const y = chartHeight + 30;
+        ctx.fillText(getDate(labels[i]), x-5, 5 + y);
+        ctx.fillText(data[i].value, x - 17 + columnWidth / 2 -55, y + 20);
+      }
+    }
+
+    // Draw the initial chart
+    drawChart(priceHistory.reverse());
+  </script>
 </body>
 </html>

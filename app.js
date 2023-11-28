@@ -88,7 +88,7 @@ const decoder = {
   }
 };
 
-const ctx = document.getElementById('fipeChart').getContext('2d');
+const ctx = document.getElementById('fipeChart');
 
 function getDate (month) {
 	switch (month) {
