@@ -7,20 +7,19 @@
   <style>
     canvas {
       border: 1px solid #ccc;
-      display: block;
+      display: none;
       margin: 20px auto;
       font-smooth: auto;
     }
   </style>
 </head>
-<body>
   <canvas id="priceHistoryChart" width="600" height="400"></canvas>
 
   <script>
     const priceHistory = [
-		  { "month": "2023-10", "value": "R$\u00a012.313,00" },
+		  { "month": "2023-10", "value": "R$\u00a022.313,00" },
 		  { "month": "2023-09", "value": "R$\u00a022.370,00" },
-      { "month": "2023-08", "value": "R$\u00a032.910,00" },
+      { "month": "2023-08", "value": "R$\u00a052.910,00" },
       { "month": "2023-07", "value": "R$\u00a043.207,00" },
       { "month": "2023-06", "value": "R$\u00a053.516,00" },
     ];
@@ -65,15 +64,24 @@
 
     // Function to draw the column chart
     function drawChart(data) {
+      const offScreenCanvas = document.createElement('canvas');
+      const offScreenCtx = offScreenCanvas.getContext('2d');
+      
+      offScreenCanvas.width = 600;
+      offScreenCanvas.height = 400;
+
       const values = data.map(item => parseValue(item.value));
       const labels = data.map(item => item.month);
 
       const minValue = 0;
       const maxValue = Math.max(...values);
 
-      const chartWidth = canvas.width - 80;
-      const chartHeight = canvas.height - 60;
+      const chartWidth = offScreenCanvas.width - 80;
+      const chartHeight = offScreenCanvas.height - 60;
       const valueRange = maxValue - minValue;
+
+      offScreenCtx.fillStyle = '#ffffff'; // Set to the desired background color
+      offScreenCtx.fillRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -125,10 +133,22 @@
         ctx.fillText(getDate(labels[i]), x-5, 5 + y);
         ctx.fillText(data[i].value, x - 17 + columnWidth / 2 -55, y + 20);
       }
+      const img = canvas.toDataURL('image/png')
+      return img;
     }
 
-    // Draw the initial chart
-    drawChart(priceHistory.reverse());
+    function callToAction() {
+      const imgSrc = drawChart(priceHistory.reverse());
+      const imgElement = document.createElement('img');
+      imgElement.src = imgSrc;
+      imgElement.alt = 'Price History Chart';
+
+      document.body.appendChild(imgElement);
+    }
+
+    window.onload = function () {
+      callToAction();
+    };
   </script>
 </body>
 </html>
